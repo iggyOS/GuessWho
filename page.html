@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Custom Guess Who</title>
+	<link rel="icon" href="logo.ico" type="image/x-icon">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+
+	body {
+		font-size: 20px;
+		background-color: #f2f2f2;
+		font-family: monospace;
+		font-weight: bold;
+		padding: 20px;
+		position: relative;
+	}
+
+	h1 {
+		font-size: 35px;
+		margin-top: 0;
+		text-align: center;
+	}
+
+	h2 {
+		font-size: 15px;
+		margin-top: 0;
+		text-align: center;
+	}
+
+	p {
+		text-align: center;
+		font-style: italic;
+	}
+
+	span {
+		color: #bd0000;
+	}
+
+	button {
+		background-color: #f2f2f2;
+		border: none;
+		border-radius: 10px;
+		font-family: monospace;
+		font-weight: bold;
+		padding: 5px 5px;
+		text-align: center;
+		display: inline-block;
+		font-size: 20px;
+		margin: 4px 12px;
+		cursor: pointer;
+		transition: transform 0.3s;
+	}
+
+	button:active {
+		transform: scale(0.9);
+	}
+
+	.card {
+		border: 2px solid #000000;
+		border-radius: 3px;
+		width: 175px;
+		height: 250px;
+		display: inline-block;
+		margin: 35px;
+		vertical-align: top;
+		text-align: center;
+		padding: 10px;
+		cursor: pointer;
+		transition: opacity 0.3s ease-in-out;
+		position: relative;
+	}
+
+	.card img {
+		max-width: 100%;
+		max-height: 100%;
+		box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+	}
+
+	.card:hover {
+		opacity: 0.8;
+	}
+
+	.card.selected {
+		opacity: 0.3;
+	}
+
+	.card-close:hover {
+		opacity: 1;
+	}
+
+	.logo {
+		border: none;
+		border-radius: none;
+		box-shadow: none;
+		height: 70px;
+		width: 70px;
+		top: 20px;
+		right: 20px;
+		position: absolute;
+	}
+
+	.cross {
+		position: absolute;
+		top: -5px;
+		right: -5px;
+		width: 25px;
+		height: 25px;
+		border-radius: 50%;
+		color: #bd0000;
+		text-align: center;
+		cursor: pointer;
+		transition: transform 0.3s;
+	}
+
+	.cross:hover {
+		transform: scale(2.0);
+	}
+
+	/* Dark mode styles */
+	body.dark-mode {
+		background-color: #333333;
+		color: #ffffff;
+	}
+
+	body.dark-mode button {
+		background-color: #333333;
+		color: #ffffff;
+	}
+
+	body.dark-mode .card {
+		border: 2px solid #ffffff;
+		box-shadow: 0px 0px 5px rgba(255, 255, 255, 0.5);
+	}
+
+	body.dark-mode .card:hover {
+		opacity: 0.6;
+	}
+
+	body.dark-mode .card.selected {
+		opacity: 0.3;
+	}
+
+	body.dark-mode .card-close:hover {
+		opacity: 0.8;
+	}
+
+	body.dark-mode .logo {
+		filter: invert(1);
+	}
+
+	body.dark-mode #add-card-btn img {
+		filter: invert(1);
+	}
+
+	.mode-toggle {
+		position: absolute;
+		top: 23px;
+		right: 110px;
+	}
+
+	.mode-toggle button img {
+    	width: 45px;
+    	height: 45px;
+    }
+	
+  </style>
+</head>
+<body>
+  <h1>Custom Guess Who</h1>
+  <h2></h2>
+  <p>Upload images and create your own cards to play Guess Who!</p>
+  <h2>To be played with someone on another device who is using the same images</h2>
+  <h2>Click cards to "put them down" and use the <span>x</span> to delete a card!</h2>
+  <div class="mode-toggle">
+    <button id="toggle-mode-btn">
+      <img src="dark mode button.png" alt="Dark Mode" id="dark-mode-img">
+      <img src="light mode button.png" alt="Light Mode" id="light-mode-img" style="display: none;">
+    </button>
+  </div>
+	<button id="add-card-btn"><img src="add.png" alt="Add Card"></button>
+	<img src="logo.png" class="logo">
+
+	<div id="card-container">
+		<!-- Cards will be added dynamically here -->
+	</div>
+
+<script>
+	const addCardBtn = document.getElementById('add-card-btn');
+	const cardContainer = document.getElementById('card-container');
+	const toggleModeBtn = document.getElementById('toggle-mode-btn');
+	const lightModeImg = document.getElementById('light-mode-img');
+	const darkModeImg = document.getElementById('dark-mode-img');
+	const body = document.body;
+
+	// Add event listener to the add card button
+	addCardBtn.addEventListener('click', () => {
+		const fileInput = document.createElement('input');
+		fileInput.type = 'file';
+
+		// Add event listener to the file input to handle image upload
+		fileInput.addEventListener('change', (event) => {
+		const file = event.target.files[0];
+		const reader = new FileReader();
+		reader.onload = (readerEvent) => {
+			// Create card element and add it to the page
+			const cardElement = document.createElement('div');
+			cardElement.classList.add('card');
+			const imageElement = document.createElement('img');
+			imageElement.src = readerEvent.target.result;
+			cardElement.appendChild(imageElement);
+
+			// Add event listener to the card element to toggle opacity on click
+			cardElement.addEventListener('click', () => {
+			cardElement.classList.toggle('selected');
+			});
+
+			// Create cross element and add it to the card element
+			const crossElement = document.createElement('div');
+			crossElement.classList.add('cross');
+			crossElement.innerHTML = '&times;';
+			cardElement.appendChild(crossElement);
+
+			// Add event listener to the cross element to remove the card
+			crossElement.addEventListener('click', () => {
+			cardContainer.removeChild(cardElement);
+			});
+
+			cardContainer.appendChild(cardElement);
+		};
+		reader.readAsDataURL(file);
+		});
+
+		fileInput.click();
+	});
+
+	// Add event listener to the toggle mode button
+	toggleModeBtn.addEventListener('click', () => {
+		body.classList.toggle('dark-mode');
+		if (body.classList.contains('dark-mode')) {
+		lightModeImg.style.display = 'inline';
+		darkModeImg.style.display = 'none';
+		} else {
+		lightModeImg.style.display = 'none';
+		darkModeImg.style.display = 'inline';
+		}
+	});
+</script>
+</body>
+</html>
